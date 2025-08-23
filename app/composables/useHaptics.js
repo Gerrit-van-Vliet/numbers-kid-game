@@ -42,7 +42,7 @@ function vibrate(pattern) {
   if (!isSupported) {
     if (!hasWarnedUnsupported) {
       hasWarnedUnsupported = true
-      try { alert('[Haptics] navigator.vibrate is not supported on this device/browser.') } catch (_) {}
+      try { console.warn('[Haptics] navigator.vibrate is not supported on this device/browser.') } catch (_) {}
     }
     return false
   }
@@ -62,6 +62,9 @@ function success() { lastEvent.value = { type: 'success', ts: Date.now() }; retu
 function warning() { lastEvent.value = { type: 'warning', ts: Date.now() }; return vibrate([50, 60, 50]) }
 function error() { lastEvent.value = { type: 'error', ts: Date.now() }; return vibrate([70, 80, 70]) }
 
+// Some platforms might require a user gesture; expose a no-op that can be called on gesture
+function prepare() { /* currently no-op, kept for API parity */ }
+
 export function useHaptics(options = {}) {
   ensureInit(options)
   return {
@@ -71,6 +74,7 @@ export function useHaptics(options = {}) {
     lastEvent,
     // low-level
     vibrate,
+    prepare,
     // helpers
     selection,
     impactLight,

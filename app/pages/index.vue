@@ -11,10 +11,16 @@
 </template>
 
 <script setup>
+const { unlock } = useSound()
+const { prepare } = useHaptics()
+
 function onClickPlay() {
     if (import.meta.client) {
         try { sessionStorage.setItem('allowPlay', '1') } catch (_) {}
     }
+    // Perform unlocks as part of the same user gesture
+    try { unlock() } catch (_) {}
+    try { prepare() } catch (_) {}
 }
 </script>
 
