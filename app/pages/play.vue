@@ -58,7 +58,8 @@
 definePageMeta({ middleware: ['require-index-origin'] })
 const { enabled: hapticsEnabled, impactLight } = useHaptics()
 const { speak, enabled: ttsEnabled, setLanguage, selectVoiceByUri, language } = useTextToSpeech()
-const { userName } = useSettings()
+const { soundOn, userName } = useSettings()
+const { play: playSound, stop: stopSound, pause: pauseSound, resume: resumeSound } = useSound()
 const showSettings = ref(false)
 const lastNumber = ref(null)
 const lastPressAt = ref(null)
@@ -119,6 +120,21 @@ const { progress: progressFullscreen, onPointerDown: onPointerDownFullscreen, on
 
 watch(showSettings, (isOpen) => { if (!isOpen) { forceReset() } })
 
+// Background music handling
+const backgroundSoundId = ref(null)
+function startBackgroundSound() {
+    if (backgroundSoundId.value != null) return
+    backgroundSoundId.value = playSound('/assets/sounds/background.mp3', { loop: true, volume: 0.5 })
+}
+watch(soundOn, (enabled) => {
+    if (enabled) {
+        if (backgroundSoundId.value == null) { startBackgroundSound(); return }
+        resumeSound(backgroundSoundId.value)
+    } else {
+        if (backgroundSoundId.value != null) { pauseSound(backgroundSoundId.value) }
+    }
+})
+
 function onNumberDown(item) {
     if (hapticsEnabled.value) { impactLight() }
     lastNumber.value = item
@@ -157,6 +173,13 @@ function onApplySettings(settings) {
 }
 
 const { start: startInactivityTimer, stop: stopInactivityTimer } = useInterval(checkIfChallengeIsCompleted, 1000)
-onMounted(() => { startInactivityTimer() })
-onBeforeUnmount(() => { stopInactivityTimer() })
+onMounted(() => {
+    startInactivityTimer()
+    startBackgroundSound()
+    if (!soundOn.value && backgroundSoundId.value != null) { pauseSound(backgroundSoundId.value) }
+})
+onBeforeUnmount(() => {
+    stopInactivityTimer()
+    if (backgroundSoundId.value != null) { stopSound(backgroundSoundId.value); backgroundSoundId.value = null }
+})
 </script>
