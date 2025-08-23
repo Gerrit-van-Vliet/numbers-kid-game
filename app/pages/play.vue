@@ -59,7 +59,7 @@ definePageMeta({ middleware: ['require-index-origin'] })
 const { enabled: hapticsEnabled, impactLight } = useHaptics()
 const { speak, enabled: ttsEnabled, setLanguage, selectVoiceByUri, language } = useTextToSpeech()
 const { soundOn, userName } = useSettings()
-const { play: playSound, stop: stopSound, pause: pauseSound, resume: resumeSound } = useSound()
+const { play: playSound, stop: stopSound, pause: pauseSound, resume: resumeSound, unlock } = useSound()
 const showSettings = ref(false)
 const lastNumber = ref(null)
 const lastPressAt = ref(null)
@@ -173,11 +173,39 @@ function onApplySettings(settings) {
 }
 
 const { start: startInactivityTimer, stop: stopInactivityTimer } = useInterval(checkIfChallengeIsCompleted, 1000)
+
+// Start background sound on first user gesture instead of onMounted
+let startedByGesture = false
+function handleFirstGestureStart() {
+    if (startedByGesture) return
+    startedByGesture = true
+    // Unlock audio immediately within the same gesture
+    unlock()
+    if (soundOn.value) {
+        startBackgroundSound()
+    }
+    // Remove listeners after first trigger
+    try {
+        window.removeEventListener('pointerdown', handleFirstGestureStart, { capture: true })
+        window.removeEventListener('touchstart', handleFirstGestureStart, { capture: true })
+        window.removeEventListener('mousedown', handleFirstGestureStart, { capture: true })
+        window.removeEventListener('keydown', handleFirstGestureStart, { capture: true })
+        window.removeEventListener('click', handleFirstGestureStart, { capture: true })
+    } catch (_) {}
+}
+
 onMounted(() => {
     startInactivityTimer()
-    startBackgroundSound()
-    if (!soundOn.value && backgroundSoundId.value != null) { pauseSound(backgroundSoundId.value) }
+    // Attach gesture listeners to start audio
+    try {
+        window.addEventListener('pointerdown', handleFirstGestureStart, { once: true, capture: true })
+        window.addEventListener('touchstart', handleFirstGestureStart, { once: true, capture: true })
+        window.addEventListener('mousedown', handleFirstGestureStart, { once: true, capture: true })
+        window.addEventListener('keydown', handleFirstGestureStart, { once: true, capture: true })
+        window.addEventListener('click', handleFirstGestureStart, { once: true, capture: true })
+    } catch (_) {}
 })
+
 onBeforeUnmount(() => {
     stopInactivityTimer()
     if (backgroundSoundId.value != null) { stopSound(backgroundSoundId.value); backgroundSoundId.value = null }
