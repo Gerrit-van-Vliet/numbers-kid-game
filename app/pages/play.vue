@@ -59,7 +59,7 @@ definePageMeta({ middleware: ['require-index-origin'] })
 const { enabled: hapticsEnabled, impactLight } = useHaptics()
 const { speak, enabled: ttsEnabled, setLanguage, selectVoiceByUri, language } = useTextToSpeech()
 const { soundOn, userName } = useSettings()
-const { play: playSound, stop: stopSound, pause: pauseSound, resume: resumeSound, unlock } = useSound()
+const { play: playSound, stop: stopSound, pause: pauseSound, resume: resumeSound, unlock, unlocked } = useSound()
 const showSettings = ref(false)
 const lastNumber = ref(null)
 const lastPressAt = ref(null)
@@ -196,7 +196,12 @@ function handleFirstGestureStart() {
 
 onMounted(() => {
     startInactivityTimer()
-    // Attach gesture listeners to start audio
+    // If audio is already unlocked (e.g., from index Play click), start immediately
+    if (unlocked.value && soundOn.value) {
+        startBackgroundSound()
+        return
+    }
+    // Otherwise attach gesture listeners to start audio
     try {
         window.addEventListener('pointerdown', handleFirstGestureStart, { once: true, capture: true })
         window.addEventListener('touchstart', handleFirstGestureStart, { once: true, capture: true })
