@@ -1,0 +1,75 @@
+@import "tailwindcss";
+
+@theme {
+    /* --color-primary: oklch(0.72 0.11 178);
+    --color-secondary: oklch(0.72 0.18 300); */
+
+
+    --color-yellow: oklch(0.9775 0.0671 112.1);
+    --color-blue: oklch(0.9388 0.0371 222.42);
+    --color-orange: oklch(0.9012 0.1158 87.49);
+    --color-gray: oklch(0.8822 0 0);
+    --color-purple: oklch(0.8765 0.08387 311.9426);
+    --color-green: oklch(0.9585 0.0411 154.09);
+}
+
+@layer utilities {
+	.container {
+		width: min(90vw, 100% - 4rem);
+		@apply mx-auto;
+	}
+}
+
+@layer base {
+	* {
+		@apply text-white;
+	}
+
+    html, body {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+        /* Prevent pinch-zoom on supported browsers */
+        touch-action: manipulation;
+    }
+
+    .main {
+        @apply h-dvh w-dvw overflow-hidden bg-green relative;
+    }
+
+    .main-layout {
+        @apply h-full w-full overflow-hidden;
+    }
+
+    .button-green {
+        @apply px-4 py-2 rounded-md cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed bg-green text-yellow;
+    }
+
+    .button-yellow {
+        @apply px-4 py-2 rounded-md cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed bg-yellow text-orange;
+    }
+
+    .button-orange {
+        @apply px-4 py-2 rounded-md cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed bg-orange text-black;
+    }
+
+    .input-green {
+        @apply px-4 py-2 rounded-md border border-green text-yellow bg-green focus:outline-none focus:ring-2 focus:ring-green disabled:opacity-50 disabled:cursor-not-allowed;
+    }
+
+    .input-purple {
+        @apply px-4 py-2 rounded-md border border-purple text-yellow bg-purple focus:outline-none focus:ring-2 focus:ring-purple disabled:opacity-50 disabled:cursor-not-allowed;
+    }
+
+    .input-yellow {
+        @apply px-4 py-2 rounded-md border border-yellow text-orange bg-yellow focus:outline-none focus:ring-2 focus:ring-yellow disabled:opacity-50 disabled:cursor-not-allowed;
+    }
+
+    .input-orange {
+        @apply px-4 py-2 rounded-md border border-orange text-black bg-orange focus:outline-none focus:ring-2 focus:ring-orange disabled:opacity-50 disabled:cursor-not-allowed;
+    }
+
+    h1, h2, h3, h4, h5, h6 {
+        @apply text-white font-bold capitalize text-2xl;
+    }
+}
