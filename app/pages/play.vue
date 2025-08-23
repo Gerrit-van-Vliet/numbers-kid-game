@@ -55,6 +55,7 @@
 </template>
 
 <script setup>
+definePageMeta({ middleware: ['require-index-origin'] })
 const { enabled: hapticsEnabled, impactLight } = useHaptics()
 const { speak, enabled: ttsEnabled, setLanguage, selectVoiceByUri, language } = useTextToSpeech()
 const { userName } = useSettings()

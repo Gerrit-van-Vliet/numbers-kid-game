@@ -1,7 +1,7 @@
 <template>
     <div class="main">
         <div class="w-full h-full flex flex-col items-center justify-center gap-8">
-            <NuxtLink to="/play" class="relative group">
+            <NuxtLink to="/play" class="relative group" @click="onClickPlay">
                 <span class="sr-only">Play</span>
                 <div class="absolute inset-0 z-0 button-orange rounded-full opacity-40 animate-ping"></div>
                 <button type="button" class="button-orange text-2xl font-bold uppercase !px-8 !py-2 rounded-full relative z-10">Play</button>
@@ -11,6 +11,11 @@
 </template>
 
 <script setup>
+function onClickPlay() {
+    if (import.meta.client) {
+        try { sessionStorage.setItem('allowPlay', '1') } catch (_) {}
+    }
+}
 </script>
 
 <style scoped>
