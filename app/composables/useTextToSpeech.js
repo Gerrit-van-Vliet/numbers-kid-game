@@ -33,9 +33,21 @@ function safeLocalStorageGet(key, fallback) {
   }
 }
 
+function safeLocalStorageHas(key) {
+  if (!isClient) return false
+  try { return localStorage.getItem(storagePrefix + key) != null } catch (_) { return false }
+}
+
 function safeLocalStorageSet(key, value) {
   if (!isClient) return
   try { localStorage.setItem(storagePrefix + key, String(value)) } catch (_) {}
+}
+
+function computeCheerfulDefaults(shortLang) {
+  const short = (shortLang || 'en').toLowerCase()
+  // Slightly higher pitch and near-normal rate for a happier, more natural kid-friendly tone
+  if (short === 'nl') return { rate: 0.98, pitch: 1.25, volume: 1 }
+  return { rate: 1, pitch: 1.1, volume: 1 }
 }
 
 function loadPersisted() {
@@ -44,12 +56,17 @@ function loadPersisted() {
   language.value = savedLang === 'nl' ? 'nl' : 'en'
   const savedVoiceUri = safeLocalStorageGet('voiceUri', null)
   selectedVoiceUri.value = savedVoiceUri
-  const savedRate = parseFloat(safeLocalStorageGet('rate', '1'))
-  const savedPitch = parseFloat(safeLocalStorageGet('pitch', '1'))
-  const savedVolume = parseFloat(safeLocalStorageGet('volume', '1'))
-  rate.value = Number.isFinite(savedRate) ? savedRate : 1
-  pitch.value = Number.isFinite(savedPitch) ? savedPitch : 1
-  volume.value = Number.isFinite(savedVolume) ? savedVolume : 1
+  // Use cheerful defaults if nothing has been saved yet
+  const defaults = computeCheerfulDefaults(language.value)
+  const hasRate = safeLocalStorageHas('rate')
+  const hasPitch = safeLocalStorageHas('pitch')
+  const hasVolume = safeLocalStorageHas('volume')
+  const savedRate = parseFloat(safeLocalStorageGet('rate', String(defaults.rate)))
+  const savedPitch = parseFloat(safeLocalStorageGet('pitch', String(defaults.pitch)))
+  const savedVolume = parseFloat(safeLocalStorageGet('volume', String(defaults.volume)))
+  rate.value = hasRate && Number.isFinite(savedRate) ? savedRate : defaults.rate
+  pitch.value = hasPitch && Number.isFinite(savedPitch) ? savedPitch : defaults.pitch
+  volume.value = hasVolume && Number.isFinite(savedVolume) ? savedVolume : defaults.volume
 }
 
 function persistOnChange() {
@@ -75,6 +92,43 @@ function refreshVoiceList() {
   voices.value = list
 }
 
+function scoreVoiceForLanguage(voice, shortLang) {
+  const lang = (shortLang || 'en').toLowerCase()
+  let score = 0
+  const voiceLang = (voice.lang || '').toLowerCase()
+  if (voiceLang.startsWith(lang)) score += 10
+  if (lang === 'nl') {
+    if (voiceLang === 'nl-nl') score += 6
+    if (voiceLang === 'nl-be') score += 5
+  }
+  const name = (voice.name || '').toLowerCase()
+  // Prefer natural/neural/cloud-backed voices
+  if (name.includes('google')) score += 6
+  if (name.includes('microsoft')) score += 4
+  if (name.includes('natural') || name.includes('neural') || name.includes('online')) score += 6
+  // Heuristic female indicators and common Dutch female names
+  const femaleHints = ['female', 'vrouw', 'vrouwelijk', 'fem', 'hanna', 'katja', 'claire', 'ellen', 'sofie', 'lotte', 'saskia']
+  if (femaleHints.some(h => name.includes(h))) score += 6
+  // De-emphasize known male names in Dutch
+  const maleHints = ['xander', 'bavo', 'lucas']
+  if (maleHints.some(h => name.includes(h))) score -= 4
+  // Prefer non-local cloud voices slightly (often more natural)
+  if (voice.localService === false) score += 2
+  return score
+}
+
+function getBestVoiceForLanguage(shortLang) {
+  const list = voices.value || []
+  if (list.length === 0) return null
+  let best = null
+  let bestScore = -Infinity
+  for (const v of list) {
+    const s = scoreVoiceForLanguage(v, shortLang)
+    if (s > bestScore) { best = v; bestScore = s }
+  }
+  return best
+}
+
 function onVoicesChanged() {
   refreshVoiceList()
   // If we have a saved voiceUri, and it's available, keep it
@@ -82,9 +136,9 @@ function onVoicesChanged() {
   if (selectedVoiceUri.value && voices.value.some(v => v.voiceURI === selectedVoiceUri.value)) {
     return
   }
-  // Prefer voices matching current language, then any
-  const preferred = voices.value.find(v => (v.lang || '').toLowerCase().startsWith(language.value))
-  selectedVoiceUri.value = preferred ? preferred.voiceURI : (voices.value[0] ? voices.value[0].voiceURI : null)
+  // Prefer best-scored voice for current language
+  const best = getBestVoiceForLanguage(language.value)
+  selectedVoiceUri.value = best ? best.voiceURI : (voices.value[0] ? voices.value[0].voiceURI : null)
 }
 
 function ensureInit(options = {}) {
@@ -116,10 +170,20 @@ const selectedVoice = computed(() => {
 function setLanguage(next) {
   const short = (next || '').toLowerCase()
   language.value = short === 'nl' ? 'nl' : 'en'
-  // If current voice does not match language, switch to a matching one if available
-  const matching = voiceListForLanguage.value
-  if (matching.length) {
-    selectedVoiceUri.value = matching[0].voiceURI
+  // If current voice does not match language, switch to a better one if available
+  const best = getBestVoiceForLanguage(language.value)
+  if (best) {
+    selectedVoiceUri.value = best.voiceURI
+  }
+  // If user never saved custom tuning, apply cheerful defaults for the new language
+  const hasRate = safeLocalStorageHas('rate')
+  const hasPitch = safeLocalStorageHas('pitch')
+  const hasVolume = safeLocalStorageHas('volume')
+  if (!hasRate || !hasPitch || !hasVolume) {
+    const d = computeCheerfulDefaults(language.value)
+    if (!hasRate) rate.value = d.rate
+    if (!hasPitch) pitch.value = d.pitch
+    if (!hasVolume) volume.value = d.volume
   }
 }
 
@@ -147,9 +211,14 @@ function speak(text, opts = {}) {
   // Map short to plausible default full tags
   const defaultLangTag = useLang === 'nl' ? 'nl-NL' : 'en-US'
   utter.lang = opts.langTag || defaultLangTag
-  utter.rate = typeof opts.rate === 'number' ? opts.rate : rate.value
-  utter.pitch = typeof opts.pitch === 'number' ? opts.pitch : pitch.value
-  utter.volume = typeof opts.volume === 'number' ? opts.volume : volume.value
+  // Apply cheerful defaults as base, then allow overrides and user tuning
+  const cheerful = computeCheerfulDefaults(useLang)
+  const baseRate = typeof opts.rate === 'number' ? opts.rate : (rate.value ?? cheerful.rate)
+  const basePitch = typeof opts.pitch === 'number' ? opts.pitch : (pitch.value ?? cheerful.pitch)
+  const baseVolume = typeof opts.volume === 'number' ? opts.volume : (volume.value ?? cheerful.volume)
+  utter.rate = baseRate
+  utter.pitch = basePitch
+  utter.volume = baseVolume
 
   // Apply voice
   let voiceToUse = null
@@ -158,8 +227,8 @@ function speak(text, opts = {}) {
   } else if (selectedVoice.value) {
     voiceToUse = selectedVoice.value
   } else {
-    // Try to pick a voice matching the language
-    voiceToUse = voiceListForLanguage.value[0] || null
+    // Try to pick the best voice matching the language
+    voiceToUse = getBestVoiceForLanguage(useLang) || voiceListForLanguage.value[0] || null
   }
   if (voiceToUse) {
     utter.voice = voiceToUse
