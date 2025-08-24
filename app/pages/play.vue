@@ -124,7 +124,7 @@ watch(showSettings, (isOpen) => { if (!isOpen) { forceReset() } })
 const backgroundSoundId = ref(null)
 function startBackgroundSound() {
     if (backgroundSoundId.value != null) return
-    backgroundSoundId.value = playSound('/assets/sounds/background.mp3', { loop: true, volume: 0.5 })
+    backgroundSoundId.value = playSound('/assets/sounds/backround.mp3', { loop: true, volume: 0.5 })
 }
 watch(soundOn, (enabled) => {
     if (enabled) {
