@@ -140,12 +140,12 @@ const vehicleNames = {
     bus:        { en: 'bus', nl: 'bus' },
     truck:      { en: 'truck', nl: 'vrachtwagen' },
     bicycle:    { en: 'bicycle', nl: 'fiets' },
-    motorcycle: { en: 'motorcycle', nl: 'motor' },
+    scooter:    { en: 'scooter', nl: 'scooter' },
     airplane:   { en: 'airplane', nl: 'vliegtuig' },
     helicopter: { en: 'helicopter', nl: 'helikopter' },
     boat:       { en: 'boat', nl: 'boot' },
     train:      { en: 'train', nl: 'trein' },
-    tractor:    { en: 'tractor', nl: 'tractor' },
+    tractor:    { en: 'tractor', nl: 'trekker' },
 }
 
 const defaultAnimals = [
@@ -168,7 +168,7 @@ const defaultVehicles = [
     { key: 'bus', src: '/assets/vehicles/bus.svg' },
     { key: 'truck', src: '/assets/vehicles/truck.svg' },
     { key: 'bicycle', src: '/assets/vehicles/bicycle.svg' },
-    { key: 'motorcycle', src: '/assets/vehicles/motorcycle.svg' },
+    { key: 'scooter', src: '/assets/vehicles/scooter.svg' },
     { key: 'airplane', src: '/assets/vehicles/airplane.svg' },
     { key: 'helicopter', src: '/assets/vehicles/helicopter.svg' },
     { key: 'boat', src: '/assets/vehicles/boat.svg' },
@@ -250,7 +250,7 @@ const tiles = computed(() => {
                 animalKey: a.key,
                 src: a.src,
                 ariaLabel: `${labelEn} / ${labelNl}`,
-                bgClass: 'bg-white',
+                bgClass: 'bg-yellow',
                 textClass: 'text-black',
             }
         })
@@ -264,7 +264,7 @@ const tiles = computed(() => {
                 vehicleKey: v.key,
                 src: v.src,
                 ariaLabel: `${labelEn} / ${labelNl}`,
-                bgClass: 'bg-white',
+                bgClass: 'bg-yellow',
                 textClass: 'text-black',
             }
         })

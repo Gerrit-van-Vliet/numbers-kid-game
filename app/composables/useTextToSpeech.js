@@ -46,7 +46,7 @@ function safeLocalStorageSet(key, value) {
 function computeCheerfulDefaults(shortLang) {
   const short = (shortLang || 'en').toLowerCase()
   // Slightly higher pitch and near-normal rate for a happier, more natural kid-friendly tone
-  if (short === 'nl') return { rate: 0.98, pitch: 1.25, volume: 1 }
+  if (short === 'nl') return { rate: 0.98, pitch: 1.1, volume: 1 }
   return { rate: 1, pitch: 1.1, volume: 1 }
 }
 

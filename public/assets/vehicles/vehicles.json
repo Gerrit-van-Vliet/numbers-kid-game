@@ -4,7 +4,7 @@
 		{ "key": "bus", "src": "/assets/vehicles/bus.svg", "en": "bus", "nl": "bus" },
 		{ "key": "truck", "src": "/assets/vehicles/truck.svg", "en": "truck", "nl": "vrachtwagen" },
 		{ "key": "bicycle", "src": "/assets/vehicles/bicycle.svg", "en": "bicycle", "nl": "fiets" },
-		{ "key": "motorcycle", "src": "/assets/vehicles/motorcycle.svg", "en": "motorcycle", "nl": "motor" },
+		{ "key": "scooter", "src": "/assets/vehicles/scooter.svg", "en": "scooter", "nl": "scooter" },
 		{ "key": "airplane", "src": "/assets/vehicles/airplane.svg", "en": "airplane", "nl": "vliegtuig" },
 		{ "key": "helicopter", "src": "/assets/vehicles/helicopter.svg", "en": "helicopter", "nl": "helikopter" },
 		{ "key": "boat", "src": "/assets/vehicles/boat.svg", "en": "boat", "nl": "boot" },
