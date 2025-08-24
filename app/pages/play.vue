@@ -9,7 +9,6 @@
                          class="basis-[calc((100%-theme(space.4)*2)/3)] aspect-square border-4 border-orange rounded-lg flex items-center justify-center cursor-pointer select-none"
                          :class="[tile.bgClass, tile.textClass]" @pointerdown="onTileDown(tile)" :aria-label="tile.ariaLabel">
                         <span v-if="gameMode === 'numbers'" class="text-4xl font-bold text-orange">{{ tile.number }}</span>
-                        <span v-else class="text-2xl font-bold">{{ tile.label }}</span>
                         <span class="sr-only">{{ tile.ariaLabel }}</span>
                     </div>
                 </div>
