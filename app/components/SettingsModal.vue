@@ -5,54 +5,54 @@
                 <div class="absolute inset-0 bg-black/50" @click="close" />
 
                 <transition name="scaleIn">
-                    <div class="relative z-10 w-full max-w-md rounded-2xl bg-green p-4 shadow-xl">
+                    <div class="relative z-10 w-full max-w-md rounded-2xl bg-secondary p-4 shadow-xl">
                         <div class="flex items-center justify-between mb-2">
                             <h2 class="text-black text-2xl font-bold">Settings</h2>
-                            <button type="button" class="button-black !py-1 !px-2" @click="close">Close</button>
+                            <button type="button" class="button-black !py-1 !px-2 text-black" @click="close">Close</button>
                         </div>
 
                         <div class="space-y-4">
                             <div class="flex items-center justify-between">
                                 <label class="text-black font-semibold">Sound</label>
-                                <input type="checkbox" v-model="soundOn" class="accent-orange" />
+                                <input type="checkbox" v-model="soundOn" class="accent-primary" />
                             </div>
                             <div class="flex items-center justify-between">
                                 <label class="text-black font-semibold">Background volume</label>
                                 <div class="w-[60%] flex items-center gap-2">
-                                    <input type="range" min="0" max="1" step="0.01" v-model="bgVolume" class="w-full accent-orange" />
+                                    <input type="range" min="0" max="1" step="0.01" v-model="bgVolume" class="w-full accent-primary" />
                                     <span class="text-black text-sm">{{ Math.round(bgVolume * 100) }}%</span>
                                 </div>
                             </div>
                             <div class="flex items-center justify-between">
                                 <label class="text-black font-semibold">Haptics</label>
-                                <input type="checkbox" v-model="hapticsOn" class="accent-orange" />
+                                <input type="checkbox" v-model="hapticsOn" class="accent-primary" />
                             </div>
                             <div class="flex items-center justify-between">
                                 <label class="text-black font-semibold">Challenges enabled</label>
-                                <input type="checkbox" v-model="challengesEnabled" class="accent-orange" />
+                                <input type="checkbox" v-model="challengesEnabled" class="accent-primary" />
                             </div>
                             <div class="flex items-center justify-between">
                                 <label class="text-black font-semibold">Debug tools</label>
-                                <input type="checkbox" v-model="debugEnabled" class="accent-orange" />
+                                <input type="checkbox" v-model="debugEnabled" class="accent-primary" />
                             </div>
                             <div class="flex items-center justify-between">
                                 <label class="text-black font-semibold">Language</label>
-                                <select v-model="ttsLanguage" class="input-orange !py-1 !px-2">
+                                <select v-model="ttsLanguage" class="input-primary !py-1 !px-2">
                                     <option value="en">English</option>
                                     <option value="nl">Nederlands</option>
                                 </select>
                             </div>
                             <div class="flex items-center justify-between">
                                 <label class="text-black font-semibold">User name</label>
-                                <input type="text" v-model="userName" class="input-orange !py-1 !px-2" />
+                                <input type="text" v-model="userName" class="input-primary !py-1 !px-2" />
                             </div>
                             <div class="flex items-center justify-between" v-if="ttsSupported">
                                 <label class="text-black font-semibold">Text to Speech</label>
-                                <input type="checkbox" v-model="ttsEnabled" class="accent-orange" />
+                                <input type="checkbox" v-model="ttsEnabled" class="accent-primary" />
                             </div>
                             <div v-if="ttsSupported" class="flex items-center justify-between">
                                 <label class="text-black font-semibold">Voice</label>
-                                <select v-model="voiceUri" class="input-orange !py-1 !px-2 w-[60%]">
+                                <select v-model="voiceUri" class="input-primary !py-1 !px-2 w-[60%]">
                                     <option v-for="v in voicesForLang" :key="v.voiceURI" :value="v.voiceURI">
                                         {{ v.name }} ({{ v.lang }})
                                     </option>
@@ -61,28 +61,28 @@
                             <div v-if="ttsSupported" class="flex items-center justify-between">
                                 <label class="text-black font-semibold">Voice pitch</label>
                                 <div class="w-[60%] flex items-center gap-2">
-                                    <input type="range" min="0.8" max="1.6" step="0.01" v-model.number="ttsPitch" class="w-full accent-orange" />
+                                    <input type="range" min="0.8" max="1.6" step="0.01" v-model.number="ttsPitch" class="w-full accent-primary" />
                                     <span class="text-black text-sm">{{ ttsPitch.toFixed(2) }}×</span>
                                 </div>
                             </div>
                             <div v-if="ttsSupported" class="flex items-center justify-between">
                                 <label class="text-black font-semibold">Voice speed</label>
                                 <div class="w-[60%] flex items-center gap-2">
-                                    <input type="range" min="0.6" max="1.4" step="0.01" v-model.number="ttsRate" class="w-full accent-orange" />
+                                    <input type="range" min="0.6" max="1.4" step="0.01" v-model.number="ttsRate" class="w-full accent-primary" />
                                     <span class="text-black text-sm">{{ ttsRate.toFixed(2) }}×</span>
                                 </div>
                             </div>
                             <div v-if="ttsSupported" class="flex items-center justify-between">
                                 <label class="text-black font-semibold">Voice volume</label>
                                 <div class="w-[60%] flex items-center gap-2">
-                                    <input type="range" min="0" max="1" step="0.01" v-model.number="ttsVolume" class="w-full accent-orange" />
+                                    <input type="range" min="0" max="1" step="0.01" v-model.number="ttsVolume" class="w-full accent-primary" />
                                     <span class="text-black text-sm">{{ Math.round(ttsVolume * 100) }}%</span>
                                 </div>
                             </div>
                         </div>
 
                         <div class="mt-4 flex justify-end gap-2">
-                            <button type="button" class="button-orange" @click="apply">Apply</button>
+                            <button type="button" class="button-primary" @click="apply">Apply</button>
                         </div>
                     </div>
                 </transition>

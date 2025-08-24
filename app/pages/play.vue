@@ -1,14 +1,49 @@
 <template>
     <div class="main">
         <div class="w-full h-full py-8 flex flex-col items-center justify-between">
-            <h1 class="text-4xl font-bold text-orange"><span class="text-orange uppercase">{{ userName }}</span></h1>
+            <h1 class="text-4xl font-bold text-primary"><span class="text-primary uppercase">{{ userName }}</span></h1>
 
             <div class="flex-1 w-full flex flex-col items-center justify-center px-4">
                 <div class="flex flex-wrap items-center justify-center w-full max-w-sm gap-4">
                     <div tabindex="0" v-for="tile in tiles" :key="tile.id"
-                         class="basis-[calc((100%-theme(space.4)*2)/3)] aspect-square border-4 border-orange rounded-lg flex items-center justify-center cursor-pointer select-none"
-                         :class="[tile.bgClass, tile.textClass]" :style="tile.bgStyle" @pointerdown="onTileDown(tile)" :aria-label="tile.ariaLabel">
-                        <span v-if="gameMode === 'numbers'" class="text-4xl font-bold text-orange">{{ tile.number }}</span>
+                         class="basis-[calc((100%-theme(space.4)*2)/3)] aspect-square shadow border-4 rounded-lg flex items-center justify-center cursor-pointer select-none"
+                         :class="{
+                            'border-primary': gameMode !== 'colors',
+                            'border-yellow': gameMode === 'colors' && tile.bgClass === 'yellow',
+                            'border-blue': gameMode === 'colors' && tile.bgClass === 'blue',
+                            'border-orange': gameMode === 'colors' && tile.bgClass === 'orange',
+                            'border-gray': gameMode === 'colors' && tile.bgClass === 'gray',
+                            'border-purple': gameMode === 'colors' && tile.bgClass === 'purple',
+                            'border-green': gameMode === 'colors' && tile.bgClass === 'green',
+                            'border-red': gameMode === 'colors' && tile.bgClass === 'red',
+                            'border-pink': gameMode === 'colors' && tile.bgClass === 'pink',
+                            'border-black': gameMode === 'colors' && tile.bgClass === 'black',
+                            'border-white': gameMode === 'colors' && tile.bgClass === 'white',
+                            'border-brown': gameMode === 'colors' && tile.bgClass === 'brown',
+                            'bg-yellow': tile.bgClass === 'yellow',
+                            'bg-blue': tile.bgClass === 'blue',
+                            'bg-orange': tile.bgClass === 'orange',
+                            'bg-gray': tile.bgClass === 'gray',
+                            'bg-purple': tile.bgClass === 'purple',
+                            'bg-green': tile.bgClass === 'green',
+                            'bg-red': tile.bgClass === 'red',
+                            'bg-pink': tile.bgClass === 'pink',
+                            'bg-black': tile.bgClass === 'black',
+                            'bg-white': tile.bgClass === 'white',
+                            'bg-brown': tile.bgClass === 'brown',
+                            'text-yellow': tile.textClass === 'yellow',
+                            'text-blue': tile.textClass === 'blue',
+                            'text-orange': tile.textClass === 'orange',
+                            'text-gray': tile.textClass === 'gray',
+                            'text-purple': tile.textClass === 'purple',
+                            'text-green': tile.textClass === 'green',
+                            'text-red': tile.textClass === 'red',
+                            'text-pink': tile.textClass === 'pink',
+                            'text-black': tile.textClass === 'black',
+                            'text-white': tile.textClass === 'white',
+                            'text-brown': tile.textClass === 'brown',
+                         }" @pointerdown="onTileDown(tile)" :aria-label="tile.ariaLabel">
+                        <span v-if="gameMode === 'numbers'" class="text-4xl font-bold text-primary">{{ tile.number }}</span>
                         <img v-else-if="gameMode === 'animals'" :src="tile.src" alt="" class="w-[70%] h-[70%] object-contain" />
                         <img v-else-if="gameMode === 'vehicles'" :src="tile.src" alt="" class="w-[70%] h-[70%] object-contain" />
                         <span class="sr-only">{{ tile.ariaLabel }}</span>
@@ -19,51 +54,51 @@
 
         <!-- Absolute long-press settings button -->
         <button type="button"
-                class="absolute bottom-4 right-4 w-12 h-12 bg-green border-2 border-orange rounded-full flex items-center justify-center overflow-hidden touch-none select-none cursor-pointer"
+                class="absolute bottom-4 right-4 w-12 h-12 bg-secondary border-2 border-primary rounded-full flex items-center justify-center overflow-hidden touch-none select-none cursor-pointer"
                 aria-label="Open settings" title="Hold 3s for settings" @pointerdown="onPointerDown"
                 @pointerup="onPointerUp" @pointerleave="onPointerLeave" @pointercancel="onPointerLeave"
                 @contextmenu.prevent>
-            <span class="absolute inset-0 rounded-full bg-orange z-0 origin-center"
+            <span class="absolute inset-0 rounded-full bg-primary z-0 origin-center"
                   :style="{ transform: `scale(${Math.max(0, progress)})` }" />
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                  stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                 class="w-5 h-5 text-orange relative z-10 mix-blend-multiply">
-                <path class="stroke-orange" d="M12 15.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7Z" />
-                <path class="stroke-orange"
+                 class="w-5 h-5 text-primary relative z-10 mix-blend-multiply">
+                <path class="stroke-primary" d="M12 15.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7Z" />
+                <path class="stroke-primary"
                       d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06A2 2 0 1 1 7.04 3.4l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V2a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9c0 .66.39 1.26 1 1.51H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1Z" />
             </svg>
         </button>
 
         <!-- Absolute long-press fullscreen button -->
         <button type="button"
-                class="absolute bottom-4 left-4 w-12 h-12 bg-green border-2 border-orange rounded-full flex items-center justify-center overflow-hidden touch-none select-none cursor-pointer"
+                class="absolute bottom-4 left-4 w-12 h-12 bg-secondary border-2 border-primary rounded-full flex items-center justify-center overflow-hidden touch-none select-none cursor-pointer"
                 aria-label="Open settings" title="Hold 3s for settings" @pointerdown="onPointerDownFullscreen"
                 @pointerup="onPointerUpFullscreen" @pointerleave="onPointerLeaveFullscreen"
                 @pointercancel="onPointerLeaveFullscreen" @contextmenu.prevent>
-            <span class="absolute inset-0 rounded-full bg-orange z-0 origin-center"
+            <span class="absolute inset-0 rounded-full bg-primary z-0 origin-center"
                   :style="{ transform: `scale(${Math.max(0, progressFullscreen)})` }" />
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                  stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                 class="w-5 h-5 text-orange relative z-10 mix-blend-multiply">
-                <path class="stroke-orange" d="M9 3H3v6" />
-                <path class="stroke-orange" d="M15 3h6v6" />
-                <path class="stroke-orange" d="M9 21H3v-6" />
-                <path class="stroke-orange" d="M15 21h6v-6" />
+                 class="w-5 h-5 text-primary relative z-10 mix-blend-multiply">
+                <path class="stroke-primary" d="M9 3H3v6" />
+                <path class="stroke-primary" d="M15 3h6v6" />
+                <path class="stroke-primary" d="M9 21H3v-6" />
+                <path class="stroke-primary" d="M15 21h6v-6" />
             </svg>
         </button>
 
         <!-- Absolute long-press back button -->
         <button type="button"
-                class="absolute top-4 left-4 w-12 h-12 bg-green border-2 border-orange rounded-full flex items-center justify-center overflow-hidden touch-none select-none cursor-pointer"
+                class="absolute top-4 left-4 w-12 h-12 bg-secondary border-2 border-primary rounded-full flex items-center justify-center overflow-hidden touch-none select-none cursor-pointer"
                 aria-label="Back to menu" title="Hold 3s to return" @pointerdown="onPointerDownBack"
                 @pointerup="onPointerUpBack" @pointerleave="onPointerLeaveBack"
                 @pointercancel="onPointerLeaveBack" @contextmenu.prevent>
-            <span class="absolute inset-0 rounded-full bg-orange z-0 origin-center"
+            <span class="absolute inset-0 rounded-full bg-primary z-0 origin-center"
                   :style="{ transform: `scale(${Math.max(0, progressBack)})` }" />
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                  stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                 class="w-5 h-5 text-orange relative z-10 mix-blend-multiply">
-                <polyline class="stroke-orange" points="15 18 9 12 15 6" />
+                 class="w-5 h-5 text-primary relative z-10 mix-blend-multiply">
+                <polyline class="stroke-primary" points="15 18 9 12 15 6" />
             </svg>
         </button>
 
@@ -145,7 +180,7 @@ const vehicleNames = {
     helicopter: { en: 'helicopter', nl: 'helikopter' },
     boat:       { en: 'boat', nl: 'boot' },
     train:      { en: 'train', nl: 'trein' },
-    tractor:    { en: 'tractor', nl: 'trekker' },
+    tractor:    { en: 'tractor', nl: 'tracker' },
 }
 
 const defaultAnimals = [
@@ -229,16 +264,11 @@ function getVehicleLabel(key, lang) {
     return (override && override[lang]) || (vehicleNames[key] && vehicleNames[key][lang]) || key
 }
 
-function getTileTextClass(colorKey) {
-    // Choose readable text color over the background
-    const lightBackgrounds = new Set(['yellow', 'orange', 'white', 'gray', 'pink'])
-    return lightBackgrounds.has(colorKey) ? 'text-black' : 'text-white'
-}
 const tiles = computed(() => {
     if (gameMode.value === 'numbers') {
         return Array.from({ length: 10 }, (_, idx) => {
             const n = idx + 1
-            return { id: `n-${n}`, number: n, ariaLabel: String(n), bgClass: 'bg-yellow' }
+            return { id: `n-${n}`, number: n, ariaLabel: String(n), bgClass: 'yellow' }
         })
     }
     if (gameMode.value === 'animals') {
@@ -250,8 +280,8 @@ const tiles = computed(() => {
                 animalKey: a.key,
                 src: a.src,
                 ariaLabel: `${labelEn} / ${labelNl}`,
-                bgClass: 'bg-yellow',
-                textClass: 'text-black',
+                bgClass: 'yellow',
+                textClass: 'black',
             }
         })
     }
@@ -264,8 +294,8 @@ const tiles = computed(() => {
                 vehicleKey: v.key,
                 src: v.src,
                 ariaLabel: `${labelEn} / ${labelNl}`,
-                bgClass: 'bg-yellow',
-                textClass: 'text-black',
+                bgClass: 'yellow',
+                textClass: 'black',
             }
         })
     }
@@ -274,9 +304,8 @@ const tiles = computed(() => {
         colorName: c,
         ariaLabel: `${colorNames[c].en} / ${colorNames[c].nl}`,
         label: `${colorNames[c].en} / ${colorNames[c].nl}`,
-        bgClass: '',
-        bgStyle: { backgroundColor: `var(--color-game-${c})` },
-        textClass: getTileTextClass(c),
+        bgClass: c,
+        textClass: c,
     }))
 })
 

@@ -1,10 +1,10 @@
 <template>
     <div v-if="visible" class="fixed bottom-4 left-4 z-[1000] flex items-center gap-2 select-none">
-        <div class="px-2 py-1 rounded bg-black/60 text-yellow text-xs font-mono">
+        <div class="px-2 py-1 rounded bg-black/60 text-primary text-xs font-mono">
             {{ label }}
         </div>
     </div>
-    <button type="button" class="fixed bottom-4 left-4 translate-x-[7.5rem] z-[1001] text-xs text-yellow underline" @click="toggle">
+    <button type="button" class="fixed bottom-4 left-4 translate-x-[7.5rem] z-[1001] text-xs text-primary underline" @click="toggle">
         Sound Debug: {{ enabledUi ? 'ON' : 'OFF' }}
     </button>
 </template>

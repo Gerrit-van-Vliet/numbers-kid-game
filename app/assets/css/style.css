@@ -4,45 +4,22 @@
     /* --color-primary: oklch(0.72 0.11 178);
     --color-secondary: oklch(0.72 0.18 300); */
 
+    --color-primary: oklch(0.9012 0.1158 87.49);
+    --color-secondary: oklch(0.9585 0.0411 154.09);
+
 
     /* Base color tokens */
-    --color-yellow: oklch(0.9775 0.0671 112.1);
-    --color-blue: oklch(0.9388 0.0371 222.42);
-    --color-orange: oklch(0.9012 0.1158 87.49);
-    --color-gray: oklch(0.8822 0 0);
-    --color-purple: oklch(0.8765 0.08387 311.9426);
-    --color-green: oklch(0.9585 0.0411 154.09);
-    --color-red: oklch(0.627 0.257 29.234);
-    --color-pink: oklch(0.86 0.17 332);
+    --color-yellow: oklch(0.97 0.12 100);
+    --color-green: oklch(0.95 0.09 150);
+    --color-blue: oklch(0.94 0.10 230);
+    --color-orange: oklch(0.6702 0.1789 41.86);
+    --color-gray: oklch(0.94 0 0);
+    --color-purple: oklch(0.93 0.10 300);
+    --color-red: oklch(0.5368 0.182 27.11);
+    --color-pink: oklch(0.96 0.12 350);
     --color-black: oklch(0.12 0 0);
     --color-white: oklch(1 0 0);
-    --color-brown: oklch(0.6 0.09 50);
-
-    /* Game-specific aliases (so utilities like bg-game-blue work) */
-    --game-yellow: var(--color-yellow);
-    --game-blue: var(--color-blue);
-    --game-orange: var(--color-orange);
-    --game-gray: var(--color-gray);
-    --game-purple: var(--color-purple);
-    --game-green: var(--color-green);
-    --game-red: var(--color-red);
-    --game-pink: var(--color-pink);
-    --game-black: var(--color-black);
-    --game-white: var(--color-white);
-    --game-brown: var(--color-brown);
-
-    /* Tailwind color tokens for game-* (enables utilities like bg-game-blue) */
-    --color-game-yellow: var(--game-yellow);
-    --color-game-blue: var(--game-blue);
-    --color-game-orange: var(--game-orange);
-    --color-game-gray: var(--game-gray);
-    --color-game-purple: var(--game-purple);
-    --color-game-green: var(--game-green);
-    --color-game-red: var(--game-red);
-    --color-game-pink: var(--game-pink);
-    --color-game-black: var(--game-black);
-    --color-game-white: var(--game-white);
-    --color-game-brown: var(--game-brown);
+    --color-brown: oklch(0.4349 0.1052 57);
 }
 
 @layer utilities {
@@ -66,39 +43,19 @@
     }
 
     .main {
-        @apply h-dvh w-dvw overflow-hidden bg-green relative;
+        @apply h-dvh w-dvw overflow-hidden bg-secondary relative;
     }
 
     .main-layout {
         @apply h-full w-full overflow-hidden;
     }
 
-    .button-green {
-        @apply px-4 py-2 rounded-md cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed bg-green text-yellow;
+    .button-primary {
+        @apply px-4 py-2 rounded-md cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed bg-primary text-black;
     }
 
-    .button-yellow {
-        @apply px-4 py-2 rounded-md cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed bg-yellow text-orange;
-    }
-
-    .button-orange {
-        @apply px-4 py-2 rounded-md cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed bg-orange text-black;
-    }
-
-    .input-green {
-        @apply px-4 py-2 rounded-md border border-green text-yellow bg-green focus:outline-none focus:ring-2 focus:ring-green disabled:opacity-50 disabled:cursor-not-allowed;
-    }
-
-    .input-purple {
-        @apply px-4 py-2 rounded-md border border-purple text-yellow bg-purple focus:outline-none focus:ring-2 focus:ring-purple disabled:opacity-50 disabled:cursor-not-allowed;
-    }
-
-    .input-yellow {
-        @apply px-4 py-2 rounded-md border border-yellow text-orange bg-yellow focus:outline-none focus:ring-2 focus:ring-yellow disabled:opacity-50 disabled:cursor-not-allowed;
-    }
-
-    .input-orange {
-        @apply px-4 py-2 rounded-md border border-orange text-black bg-orange focus:outline-none focus:ring-2 focus:ring-orange disabled:opacity-50 disabled:cursor-not-allowed;
+    .input-primary {
+        @apply px-4 py-2 rounded-md border border-primary text-black bg-primary focus:outline-none focus:ring-2 focus:ring-primary disabled:opacity-50 disabled:cursor-not-allowed;
     }
 
     h1, h2, h3, h4, h5, h6 {

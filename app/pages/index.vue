@@ -3,7 +3,7 @@
         <div class="w-full h-full flex flex-col items-center justify-center gap-8">
             <div class="flex flex-col items-center gap-2">
                 <label for="game-mode" class="text-black font-semibold">Game mode</label>
-                <select id="game-mode" v-model="gameMode" class="input-orange !py-1 !px-2">
+                <select id="game-mode" v-model="gameMode" class="input-primary !py-1 !px-2">
                     <option value="numbers">Numbers</option>
                     <option value="colors">Colors</option>
                     <option value="animals">Animals</option>
@@ -12,8 +12,8 @@
             </div>
             <NuxtLink to="/play" class="relative group" @click="onClickPlay">
                 <span class="sr-only">Play</span>
-                <div class="absolute inset-0 z-0 button-orange rounded-full opacity-40 animate-ping"></div>
-                <button type="button" class="button-orange text-2xl font-bold uppercase !px-8 !py-2 rounded-full relative z-10">Play</button>
+                <div class="absolute inset-0 z-0 button-primary rounded-full opacity-40 animate-ping"></div>
+                <button type="button" class="button-primary text-2xl font-bold uppercase !px-8 !py-2 rounded-full relative z-10">Play</button>
             </NuxtLink>
         </div>
     </div>

@@ -1,17 +1,17 @@
 <template>
     <div v-if="visible" class="fixed bottom-4 left-4 z-[1000] flex items-center gap-2 select-none">
-        <div class="w-10 h-10 rounded-full border-2 border-yellow flex items-center justify-center">
+        <div class="w-10 h-10 rounded-full border-2 border-primary flex items-center justify-center">
             <div
                 class="w-6 h-6 rounded-full"
                 :class="ringClass"
                 :style="{ backgroundColor: color, opacity }"
             />
         </div>
-        <div class="px-2 py-1 rounded bg-black/60 text-yellow text-xs font-mono">
+        <div class="px-2 py-1 rounded bg-black/60 text-primary text-xs font-mono">
             {{ label }}
         </div>
     </div>
-    <button type="button" class="fixed bottom-4 left-4 translate-x-14 z-[1001] text-xs text-yellow underline" @click="toggle">
+    <button type="button" class="fixed bottom-4 left-4 translate-x-14 z-[1001] text-xs text-primary underline" @click="toggle">
         Haptics Debug: {{ enabledUi ? 'ON' : 'OFF' }}
     </button>
 </template>
