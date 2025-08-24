@@ -14,6 +14,7 @@ const difficulty = ref('easy') // reserved for future use
 const challengesEnabled = ref(true)
 const debugEnabled = ref(false)
 const bgVolume = ref(0.25)
+const gameMode = ref('numbers')
 
 function safeGet(key, fallback) {
     if (!isClient) return fallback
@@ -42,6 +43,8 @@ function ensureInit() {
     debugEnabled.value = safeGet('debugEnabled', 'false') === 'true'
     const savedBgVol = parseFloat(safeGet('bgVolume', '0.25'))
     bgVolume.value = Number.isFinite(savedBgVol) ? Math.max(0, Math.min(1, savedBgVol)) : 0.25
+    const savedMode = safeGet('gameMode', 'numbers')
+    gameMode.value = ['numbers', 'colors'].includes(savedMode) ? savedMode : 'numbers'
 
     // Persist on change
     watch(soundOn, v => safeSet('soundOn', Boolean(v)))
@@ -50,6 +53,7 @@ function ensureInit() {
     watch(challengesEnabled, v => safeSet('challengesEnabled', Boolean(v)))
     watch(debugEnabled, v => safeSet('debugEnabled', Boolean(v)))
     watch(bgVolume, v => safeSet('bgVolume', Math.max(0, Math.min(1, Number(v)))))
+    watch(gameMode, v => safeSet('gameMode', v))
 
     initialized.value = true
 }
@@ -63,6 +67,7 @@ export function useSettings() {
         challengesEnabled,
         debugEnabled,
         bgVolume,
+        gameMode,
     }
 }
 

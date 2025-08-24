@@ -5,10 +5,11 @@
 
             <div class="flex-1 w-full flex flex-col items-center justify-center px-4">
                 <div class="flex flex-wrap items-center justify-center w-full max-w-sm gap-4">
-                    <div tabindex="0" v-for="i in numbers" :key="i"
-                         class="basis-[calc((100%-theme(space.4)*2)/3)] aspect-square bg-yellow border-4 border-orange rounded-lg flex items-center justify-center cursor-pointer select-none"
-                         :class="i.color" @pointerdown="onNumberDown(i)">
-                        <span class="text-4xl font-bold text-orange">{{ i.number }}</span>
+                    <div tabindex="0" v-for="tile in tiles" :key="tile.id"
+                         class="basis-[calc((100%-theme(space.4)*2)/3)] aspect-square border-4 border-orange rounded-lg flex items-center justify-center cursor-pointer select-none"
+                         :class="tile.bgClass" @pointerdown="onTileDown(tile)" :aria-label="tile.ariaLabel">
+                        <span v-if="gameMode === 'numbers'" class="text-4xl font-bold text-orange">{{ tile.number }}</span>
+                        <span class="sr-only">{{ tile.ariaLabel }}</span>
                     </div>
                 </div>
             </div>
@@ -49,6 +50,21 @@
             </svg>
         </button>
 
+        <!-- Absolute long-press back button -->
+        <button type="button"
+                class="absolute top-4 left-4 w-12 h-12 bg-green border-2 border-orange rounded-full flex items-center justify-center overflow-hidden touch-none select-none cursor-pointer"
+                aria-label="Back to menu" title="Hold 3s to return" @pointerdown="onPointerDownBack"
+                @pointerup="onPointerUpBack" @pointerleave="onPointerLeaveBack"
+                @pointercancel="onPointerLeaveBack" @contextmenu.prevent>
+            <span class="absolute inset-0 rounded-full bg-orange z-0 origin-center"
+                  :style="{ transform: `scale(${Math.max(0, progressBack)})` }" />
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                 stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                 class="w-5 h-5 text-orange relative z-10 mix-blend-multiply">
+                <polyline class="stroke-orange" points="15 18 9 12 15 6" />
+            </svg>
+        </button>
+
         <!-- Modal for settings -->
         <SettingsModal v-model="showSettings" @apply="onApplySettings" />
     </div>
@@ -58,7 +74,7 @@
 definePageMeta({ middleware: ['require-index-origin'] })
 const { enabled: hapticsEnabled, impactLight, impactMedium } = useHaptics()
 const { speak, enabled: ttsEnabled, setLanguage, selectVoiceByUri, language } = useTextToSpeech()
-const { soundOn, userName, challengesEnabled, bgVolume } = useSettings()
+const { soundOn, userName, challengesEnabled, bgVolume, gameMode } = useSettings()
 const { play: playSound, stop: stopSound, pause: pauseSound, resume: resumeSound, unlock, unlocked, setVolume } = useSound()
 const showSettings = ref(false)
 const lastNumber = ref(null)
@@ -83,23 +99,28 @@ const messages = {
         nl: 'Nee, dat was niet goed! Klik maar op : '
     }
 }
-const numbers = ref([
-    { number: 1, color: 'yellow' },
-    { number: 2, color: 'yellow' },
-    { number: 3, color: 'yellow' },
-    { number: 4, color: 'yellow' },
-    { number: 5, color: 'yellow' },
-    { number: 6, color: 'yellow' },
-    { number: 7, color: 'yellow' },
-    { number: 8, color: 'yellow' },
-    { number: 9, color: 'yellow' },
-    { number: 10, color: 'yellow' },
-])
 
-const currentChallengeNumber = ref(null)
+const colorList = ['yellow', 'blue', 'orange', 'gray', 'purple', 'green']
+const tiles = computed(() => {
+    if (gameMode.value === 'numbers') {
+        return Array.from({ length: 10 }, (_, idx) => {
+            const n = idx + 1
+            return { id: `n-${n}`, number: n, ariaLabel: String(n), bgClass: 'bg-yellow' }
+        })
+    }
+    return colorList.map((c) => ({ id: `c-${c}`, colorName: c, ariaLabel: c, bgClass: `bg-${c}` }))
+})
+
+const currentChallengeTarget = ref(null)
 function createChallenge() {
-    currentChallengeNumber.value = Math.floor(Math.random() * 10) + 1
-    motivateToClickSpecificNumber(currentChallengeNumber.value)
+    if (gameMode.value === 'numbers') {
+        currentChallengeTarget.value = Math.floor(Math.random() * 10) + 1
+        motivateToClickSpecificTarget(String(currentChallengeTarget.value))
+    } else {
+        const target = colorList[Math.floor(Math.random() * colorList.length)]
+        currentChallengeTarget.value = target
+        motivateToClickSpecificTarget(String(target))
+    }
 }
 
 const { progress, onPointerDown, onPointerUp, onPointerLeave, forceReset } = useLongPress({
@@ -116,6 +137,12 @@ const { progress: progressFullscreen, onPointerDown: onPointerDownFullscreen, on
             document.documentElement.requestFullscreen(); forceResetFullscreen()
         }
     }
+})
+
+const router = useRouter()
+const { progress: progressBack, onPointerDown: onPointerDownBack, onPointerUp: onPointerUpBack, onPointerLeave: onPointerLeaveBack, forceReset: forceResetBack } = useLongPress({
+    duration: 1500,
+    onSuccess: () => { router.push('/'); forceResetBack() }
 })
 
 watch(showSettings, (isOpen) => { if (!isOpen) { forceReset() } })
@@ -138,20 +165,30 @@ watch(bgVolume, (v) => {
     if (backgroundSoundId.value != null) { setVolume(backgroundSoundId.value, v) }
 })
 
-function onNumberDown(item) {
+function onTileDown(item) {
     if (hapticsEnabled.value) { impactMedium() }
     lastNumber.value = item
     lastPressAt.value = new Date().getTime()
     if (ttsEnabled.value) {
-        if (challengesEnabled.value && currentChallengeNumber.value) {
-            if (item.number === currentChallengeNumber.value) {
-                speak(String(item.number) + '. ' + messages.great_job[language.value] + ' ' + userName.value + '!', { interrupt: true })
-                currentChallengeNumber.value = null
+        if (challengesEnabled.value && currentChallengeTarget.value) {
+            if (gameMode.value === 'numbers') {
+                if (item.number === currentChallengeTarget.value) {
+                    speak(String(item.number) + '. ' + messages.great_job[language.value] + ' ' + userName.value + '!', { interrupt: true })
+                    currentChallengeTarget.value = null
+                } else {
+                    speak(String(item.number) + '. ' + messages.nope_that_was_wrong[language.value] + String(currentChallengeTarget.value) + '.', { interrupt: true })
+                }
             } else {
-                speak(String(item.number) + '. ' + messages.nope_that_was_wrong[language.value] + String(currentChallengeNumber.value) + '.', { interrupt: true })
+                if (item.colorName === currentChallengeTarget.value) {
+                    speak(String(item.colorName) + '. ' + messages.great_job[language.value] + ' ' + userName.value + '!', { interrupt: true })
+                    currentChallengeTarget.value = null
+                } else {
+                    speak(String(item.colorName) + '. ' + messages.nope_that_was_wrong[language.value] + String(currentChallengeTarget.value) + '.', { interrupt: true })
+                }
             }
         } else {
-            speak(String(item.number), { interrupt: true })
+            const label = gameMode.value === 'numbers' ? String(item.number) : String(item.colorName)
+            speak(label, { interrupt: true })
         }
     }
 }
@@ -159,13 +196,13 @@ function onNumberDown(item) {
 function checkIfChallengeIsCompleted() {
     const now = Date.now()
     const lastInteractionAt = lastPressAt.value || mountedAt.value
-    if (challengesEnabled.value && !currentChallengeNumber.value && (now - lastInteractionAt) >= inactivityThresholdMs) {
+    if (challengesEnabled.value && !currentChallengeTarget.value && (now - lastInteractionAt) >= inactivityThresholdMs) {
         createChallenge()
     }
 }
 
-function motivateToClickSpecificNumber(number) {
-    if (ttsEnabled.value) { speak(messages.click[language.value] + String(number), { interrupt: true }) }
+function motivateToClickSpecificTarget(label) {
+    if (ttsEnabled.value) { speak(messages.click[language.value] + String(label), { interrupt: true }) }
 }
 
 function onApplySettings(settings) {
@@ -175,7 +212,7 @@ function onApplySettings(settings) {
     if (settings?.ttsVoiceUri) { selectVoiceByUri(settings.ttsVoiceUri) }
     if (typeof settings?.challengesOn === 'boolean') {
         // When toggled off, clear any current challenge
-        if (!settings.challengesOn) { currentChallengeNumber.value = null }
+        if (!settings.challengesOn) { currentChallengeTarget.value = null }
     }
 }
 
