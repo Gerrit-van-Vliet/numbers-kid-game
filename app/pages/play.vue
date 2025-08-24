@@ -207,29 +207,21 @@ function onTileDown(item) {
                     speak(String(item.number) + '. ' + messages.nope_that_was_wrong[language.value] + String(currentChallengeTarget.value) + '.', { interrupt: true })
                 }
             } else {
-                const selectedEn = colorNames[item.colorName].en
-                const selectedNl = colorNames[item.colorName].nl
+                const selected = colorNames[item.colorName][language.value]
                 if (item.colorName === currentChallengeTarget.value) {
-                    // Speak both languages for the color name
-                    speak(`${selectedEn}.`, { interrupt: true, langTag: 'en-US' })
-                    speak(`${selectedNl}. ${messages.great_job[language.value]} ${userName.value}!`, { langTag: 'nl-NL' })
+                    speak(`${selected}. ${messages.great_job[language.value]} ${userName.value}!`, { interrupt: true })
                     currentChallengeTarget.value = null
                 } else {
-                    const targetEn = colorNames[currentChallengeTarget.value].en
-                    const targetNl = colorNames[currentChallengeTarget.value].nl
-                    speak(`${selectedEn}.`, { interrupt: true, langTag: 'en-US' })
-                    speak(`${selectedNl}. ${messages.nope_that_was_wrong[language.value]} ${targetEn} / ${targetNl}.`, { langTag: language.value === 'nl' ? 'nl-NL' : 'en-US' })
+                    const target = colorNames[currentChallengeTarget.value][language.value]
+                    speak(`${selected}. ${messages.nope_that_was_wrong[language.value]} ${target}.`, { interrupt: true })
                 }
             }
         } else {
             if (gameMode.value === 'numbers') {
                 speak(String(item.number), { interrupt: true })
             } else {
-                const en = colorNames[item.colorName].en
-                const nl = colorNames[item.colorName].nl
-                // Speak both languages one after another
-                speak(en, { interrupt: true, langTag: 'en-US' })
-                speak(nl, { langTag: 'nl-NL' })
+                const name = colorNames[item.colorName][language.value]
+                speak(name, { interrupt: true })
             }
         }
     }
@@ -249,15 +241,10 @@ function motivateToClickSpecificTarget(label) {
         speak(messages.click[language.value] + String(label), { interrupt: true })
         return
     }
-    // Colors: label is the color key. Speak bilingual color name
+    // Colors: label is the color key. Speak only in active language
     const key = String(label)
-    const en = colorNames[key]?.en || key
-    const nl = colorNames[key]?.nl || key
-    // Say the instruction in the currently selected language
-    speak(messages.click[language.value], { interrupt: true, langTag: language.value === 'nl' ? 'nl-NL' : 'en-US' })
-    // Then say the color in English and Dutch
-    speak(en, { langTag: 'en-US' })
-    speak(nl, { langTag: 'nl-NL' })
+    const name = colorNames[key]?.[language.value] || key
+    speak(`${messages.click[language.value]} ${name}`, { interrupt: true })
 }
 
 function onApplySettings(settings) {
