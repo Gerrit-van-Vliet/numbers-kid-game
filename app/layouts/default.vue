@@ -1,9 +1,11 @@
 <template>
     <div class="main-layout">
         <slot />
-        <!-- <HapticsDebug /> -->
+        <SoundDebug v-if="debugEnabled" />
+        <HapticsDebug v-if="debugEnabled" />
     </div>
 </template>
 
 <script setup>
+const { debugEnabled } = useSettings()
 </script>
