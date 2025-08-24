@@ -58,6 +58,27 @@
                                     </option>
                                 </select>
                             </div>
+                            <div v-if="ttsSupported" class="flex items-center justify-between">
+                                <label class="text-black font-semibold">Voice pitch</label>
+                                <div class="w-[60%] flex items-center gap-2">
+                                    <input type="range" min="0.8" max="1.6" step="0.01" v-model.number="ttsPitch" class="w-full accent-orange" />
+                                    <span class="text-black text-sm">{{ ttsPitch.toFixed(2) }}×</span>
+                                </div>
+                            </div>
+                            <div v-if="ttsSupported" class="flex items-center justify-between">
+                                <label class="text-black font-semibold">Voice speed</label>
+                                <div class="w-[60%] flex items-center gap-2">
+                                    <input type="range" min="0.6" max="1.4" step="0.01" v-model.number="ttsRate" class="w-full accent-orange" />
+                                    <span class="text-black text-sm">{{ ttsRate.toFixed(2) }}×</span>
+                                </div>
+                            </div>
+                            <div v-if="ttsSupported" class="flex items-center justify-between">
+                                <label class="text-black font-semibold">Voice volume</label>
+                                <div class="w-[60%] flex items-center gap-2">
+                                    <input type="range" min="0" max="1" step="0.01" v-model.number="ttsVolume" class="w-full accent-orange" />
+                                    <span class="text-black text-sm">{{ Math.round(ttsVolume * 100) }}%</span>
+                                </div>
+                            </div>
                         </div>
 
                         <div class="mt-4 flex justify-end gap-2">
@@ -85,7 +106,7 @@ const hapticsOn = computed({
     set: (v) => { hapticsEnabled.value = Boolean(v) }
 })
 // TTS
-const { isSupported: ttsSupported, enabled: ttsEnabledRef, language: ttsLanguageRef, voiceListForLanguage, selectedVoiceUri, selectVoiceByUri, setLanguage } = useTextToSpeech()
+const { isSupported: ttsSupported, enabled: ttsEnabledRef, language: ttsLanguageRef, voiceListForLanguage, selectedVoiceUri, selectVoiceByUri, setLanguage, rate: rateRef, pitch: pitchRef, volume: volumeRef } = useTextToSpeech()
 
 const ttsEnabled = computed({
     get: () => ttsEnabledRef.value,
@@ -102,6 +123,19 @@ const voicesForLang = computed(() => voiceListForLanguage.value)
 const voiceUri = computed({
     get: () => selectedVoiceUri.value,
     set: (uri) => { selectVoiceByUri(uri) }
+})
+
+const ttsRate = computed({
+    get: () => rateRef.value,
+    set: (v) => { rateRef.value = Number(v) }
+})
+const ttsPitch = computed({
+    get: () => pitchRef.value,
+    set: (v) => { pitchRef.value = Number(v) }
+})
+const ttsVolume = computed({
+    get: () => volumeRef.value,
+    set: (v) => { volumeRef.value = Number(v) }
 })
 
 function close() {
