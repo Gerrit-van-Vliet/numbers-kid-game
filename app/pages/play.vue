@@ -7,8 +7,9 @@
                 <div class="flex flex-wrap items-center justify-center w-full max-w-sm gap-4">
                     <div tabindex="0" v-for="tile in tiles" :key="tile.id"
                          class="basis-[calc((100%-theme(space.4)*2)/3)] aspect-square border-4 border-orange rounded-lg flex items-center justify-center cursor-pointer select-none"
-                         :class="tile.bgClass" @pointerdown="onTileDown(tile)" :aria-label="tile.ariaLabel">
+                         :class="[tile.bgClass, tile.textClass]" @pointerdown="onTileDown(tile)" :aria-label="tile.ariaLabel">
                         <span v-if="gameMode === 'numbers'" class="text-4xl font-bold text-orange">{{ tile.number }}</span>
+                        <span v-else class="text-2xl font-bold">{{ tile.label }}</span>
                         <span class="sr-only">{{ tile.ariaLabel }}</span>
                     </div>
                 </div>
@@ -100,7 +101,27 @@ const messages = {
     }
 }
 
-const colorList = ['yellow', 'blue', 'orange', 'gray', 'purple', 'green']
+// Basic colors with English and Dutch labels
+const colorNames = {
+    yellow: { en: 'yellow', nl: 'geel' },
+    blue:   { en: 'blue', nl: 'blauw' },
+    orange: { en: 'orange', nl: 'oranje' },
+    gray:   { en: 'gray', nl: 'grijs' },
+    purple: { en: 'purple', nl: 'paars' },
+    green:  { en: 'green', nl: 'groen' },
+    red:    { en: 'red', nl: 'rood' },
+    pink:   { en: 'pink', nl: 'roze' },
+    black:  { en: 'black', nl: 'zwart' },
+    white:  { en: 'white', nl: 'wit' },
+    brown:  { en: 'brown', nl: 'bruin' },
+}
+const colorList = ['yellow', 'blue', 'orange', 'gray', 'purple', 'green', 'red', 'pink', 'black', 'white', 'brown']
+
+function getTileTextClass(colorKey) {
+    // Choose readable text color over the background
+    const lightBackgrounds = new Set(['yellow', 'orange', 'white', 'gray', 'pink'])
+    return lightBackgrounds.has(colorKey) ? 'text-black' : 'text-white'
+}
 const tiles = computed(() => {
     if (gameMode.value === 'numbers') {
         return Array.from({ length: 10 }, (_, idx) => {
@@ -108,7 +129,14 @@ const tiles = computed(() => {
             return { id: `n-${n}`, number: n, ariaLabel: String(n), bgClass: 'bg-yellow' }
         })
     }
-    return colorList.map((c) => ({ id: `c-${c}`, colorName: c, ariaLabel: c, bgClass: `bg-${c}` }))
+    return colorList.map((c) => ({
+        id: `c-${c}`,
+        colorName: c,
+        ariaLabel: `${colorNames[c].en} / ${colorNames[c].nl}`,
+        label: `${colorNames[c].en} / ${colorNames[c].nl}`,
+        bgClass: `bg-game-${c}`,
+        textClass: getTileTextClass(c),
+    }))
 })
 
 const currentChallengeTarget = ref(null)
@@ -179,16 +207,30 @@ function onTileDown(item) {
                     speak(String(item.number) + '. ' + messages.nope_that_was_wrong[language.value] + String(currentChallengeTarget.value) + '.', { interrupt: true })
                 }
             } else {
+                const selectedEn = colorNames[item.colorName].en
+                const selectedNl = colorNames[item.colorName].nl
                 if (item.colorName === currentChallengeTarget.value) {
-                    speak(String(item.colorName) + '. ' + messages.great_job[language.value] + ' ' + userName.value + '!', { interrupt: true })
+                    // Speak both languages for the color name
+                    speak(`${selectedEn}.`, { interrupt: true, langTag: 'en-US' })
+                    speak(`${selectedNl}. ${messages.great_job[language.value]} ${userName.value}!`, { langTag: 'nl-NL' })
                     currentChallengeTarget.value = null
                 } else {
-                    speak(String(item.colorName) + '. ' + messages.nope_that_was_wrong[language.value] + String(currentChallengeTarget.value) + '.', { interrupt: true })
+                    const targetEn = colorNames[currentChallengeTarget.value].en
+                    const targetNl = colorNames[currentChallengeTarget.value].nl
+                    speak(`${selectedEn}.`, { interrupt: true, langTag: 'en-US' })
+                    speak(`${selectedNl}. ${messages.nope_that_was_wrong[language.value]} ${targetEn} / ${targetNl}.`, { langTag: language.value === 'nl' ? 'nl-NL' : 'en-US' })
                 }
             }
         } else {
-            const label = gameMode.value === 'numbers' ? String(item.number) : String(item.colorName)
-            speak(label, { interrupt: true })
+            if (gameMode.value === 'numbers') {
+                speak(String(item.number), { interrupt: true })
+            } else {
+                const en = colorNames[item.colorName].en
+                const nl = colorNames[item.colorName].nl
+                // Speak both languages one after another
+                speak(en, { interrupt: true, langTag: 'en-US' })
+                speak(nl, { langTag: 'nl-NL' })
+            }
         }
     }
 }
@@ -202,7 +244,20 @@ function checkIfChallengeIsCompleted() {
 }
 
 function motivateToClickSpecificTarget(label) {
-    if (ttsEnabled.value) { speak(messages.click[language.value] + String(label), { interrupt: true }) }
+    if (!ttsEnabled.value) return
+    if (gameMode.value === 'numbers') {
+        speak(messages.click[language.value] + String(label), { interrupt: true })
+        return
+    }
+    // Colors: label is the color key. Speak bilingual color name
+    const key = String(label)
+    const en = colorNames[key]?.en || key
+    const nl = colorNames[key]?.nl || key
+    // Say the instruction in the currently selected language
+    speak(messages.click[language.value], { interrupt: true, langTag: language.value === 'nl' ? 'nl-NL' : 'en-US' })
+    // Then say the color in English and Dutch
+    speak(en, { langTag: 'en-US' })
+    speak(nl, { langTag: 'nl-NL' })
 }
 
 function onApplySettings(settings) {
