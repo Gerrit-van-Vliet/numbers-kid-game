@@ -9,6 +9,7 @@
                          class="basis-[calc((100%-theme(space.4)*2)/3)] aspect-square border-4 border-orange rounded-lg flex items-center justify-center cursor-pointer select-none"
                          :class="[tile.bgClass, tile.textClass]" :style="tile.bgStyle" @pointerdown="onTileDown(tile)" :aria-label="tile.ariaLabel">
                         <span v-if="gameMode === 'numbers'" class="text-4xl font-bold text-orange">{{ tile.number }}</span>
+                        <img v-else-if="gameMode === 'animals'" :src="tile.src" alt="" class="w-[70%] h-[70%] object-contain" />
                         <span class="sr-only">{{ tile.ariaLabel }}</span>
                     </div>
                 </div>
@@ -116,6 +117,64 @@ const colorNames = {
 }
 const colorList = ['yellow', 'blue', 'orange', 'gray', 'purple', 'green', 'red', 'pink', 'black', 'white', 'brown']
 
+// Animals with English and Dutch labels
+const animalNames = {
+    cat:      { en: 'cat', nl: 'kat' },
+    dog:      { en: 'dog', nl: 'hond' },
+    cow:      { en: 'cow', nl: 'koe' },
+    horse:    { en: 'horse', nl: 'paard' },
+    sheep:    { en: 'sheep', nl: 'schaap' },
+    pig:      { en: 'pig', nl: 'varken' },
+    lion:     { en: 'lion', nl: 'leeuw' },
+    tiger:    { en: 'tiger', nl: 'tijger' },
+    elephant: { en: 'elephant', nl: 'olifant' },
+    monkey:   { en: 'monkey', nl: 'aap' },
+    bird:     { en: 'bird', nl: 'vogel' },
+    fish:     { en: 'fish', nl: 'vis' },
+}
+
+const defaultAnimals = [
+    { key: 'cat', src: '/assets/animals/cat.svg' },
+    { key: 'dog', src: '/assets/animals/dog.svg' },
+    { key: 'cow', src: '/assets/animals/cow.svg' },
+    { key: 'horse', src: '/assets/animals/horse.svg' },
+    { key: 'sheep', src: '/assets/animals/sheep.svg' },
+    { key: 'pig', src: '/assets/animals/pig.svg' },
+    { key: 'lion', src: '/assets/animals/lion.svg' },
+    { key: 'tiger', src: '/assets/animals/tiger.svg' },
+    { key: 'elephant', src: '/assets/animals/elephant.svg' },
+    { key: 'monkey', src: '/assets/animals/monkey.svg' },
+    { key: 'bird', src: '/assets/animals/bird.svg' },
+    { key: 'fish', src: '/assets/animals/fish.svg' },
+]
+
+const animals = ref(defaultAnimals)
+
+function defaultSrcForKey(key) {
+    return `/assets/animals/${key}.svg`
+}
+
+async function fetchAnimals() {
+    try {
+        const res = await fetch('/assets/animals/animals.json', { cache: 'no-cache' })
+        if (!res.ok) return
+        const data = await res.json()
+        const list = Array.isArray(data) ? data : (Array.isArray(data.animals) ? data.animals : null)
+        if (!Array.isArray(list) || list.length === 0) return
+        animals.value = list.map(item => ({
+            key: String(item.key || '').trim() || 'unknown',
+            src: item.src || defaultSrcForKey(item.key),
+            en: item.en,
+            nl: item.nl,
+        }))
+    } catch (_) {}
+}
+
+function getAnimalLabel(key, lang) {
+    const override = animals.value.find(a => a.key === key)
+    return (override && override[lang]) || (animalNames[key] && animalNames[key][lang]) || key
+}
+
 function getTileTextClass(colorKey) {
     // Choose readable text color over the background
     const lightBackgrounds = new Set(['yellow', 'orange', 'white', 'gray', 'pink'])
@@ -126,6 +185,20 @@ const tiles = computed(() => {
         return Array.from({ length: 10 }, (_, idx) => {
             const n = idx + 1
             return { id: `n-${n}`, number: n, ariaLabel: String(n), bgClass: 'bg-yellow' }
+        })
+    }
+    if (gameMode.value === 'animals') {
+        return animals.value.map((a) => {
+            const labelEn = getAnimalLabel(a.key, 'en')
+            const labelNl = getAnimalLabel(a.key, 'nl')
+            return {
+                id: `a-${a.key}`,
+                animalKey: a.key,
+                src: a.src,
+                ariaLabel: `${labelEn} / ${labelNl}`,
+                bgClass: 'bg-white',
+                textClass: 'text-black',
+            }
         })
     }
     return colorList.map((c) => ({
@@ -144,6 +217,11 @@ function createChallenge() {
     if (gameMode.value === 'numbers') {
         currentChallengeTarget.value = Math.floor(Math.random() * 10) + 1
         motivateToClickSpecificTarget(String(currentChallengeTarget.value))
+    } else if (gameMode.value === 'animals') {
+        const pool = animals.value.map(a => a.key)
+        const target = pool[Math.floor(Math.random() * pool.length)]
+        currentChallengeTarget.value = target
+        motivateToClickSpecificTarget(String(target))
     } else {
         const target = colorList[Math.floor(Math.random() * colorList.length)]
         currentChallengeTarget.value = target
@@ -206,6 +284,15 @@ function onTileDown(item) {
                 } else {
                     speak(String(item.number) + '. ' + messages.nope_that_was_wrong[language.value] + String(currentChallengeTarget.value) + '.', { interrupt: true })
                 }
+            } else if (gameMode.value === 'animals') {
+                const selected = getAnimalLabel(item.animalKey, language.value)
+                if (item.animalKey === currentChallengeTarget.value) {
+                    speak(`${selected}. ${messages.great_job[language.value]} ${userName.value}!`, { interrupt: true })
+                    currentChallengeTarget.value = null
+                } else {
+                    const target = getAnimalLabel(String(currentChallengeTarget.value), language.value)
+                    speak(`${selected}. ${messages.nope_that_was_wrong[language.value]} ${target}.`, { interrupt: true })
+                }
             } else {
                 const selected = colorNames[item.colorName][language.value]
                 if (item.colorName === currentChallengeTarget.value) {
@@ -219,6 +306,9 @@ function onTileDown(item) {
         } else {
             if (gameMode.value === 'numbers') {
                 speak(String(item.number), { interrupt: true })
+            } else if (gameMode.value === 'animals') {
+                const name = getAnimalLabel(item.animalKey, language.value)
+                speak(name, { interrupt: true })
             } else {
                 const name = colorNames[item.colorName][language.value]
                 speak(name, { interrupt: true })
@@ -239,6 +329,12 @@ function motivateToClickSpecificTarget(label) {
     if (!ttsEnabled.value) return
     if (gameMode.value === 'numbers') {
         speak(messages.click[language.value] + String(label), { interrupt: true })
+        return
+    }
+    if (gameMode.value === 'animals') {
+        const key = String(label)
+        const name = getAnimalLabel(key, language.value)
+        speak(`${messages.click[language.value]} ${name}`, { interrupt: true })
         return
     }
     // Colors: label is the color key. Speak only in active language
@@ -281,6 +377,8 @@ function handleFirstGestureStart() {
 }
 
 onMounted(() => {
+    // Load optional animals config
+    fetchAnimals()
     startInactivityTimer()
     // If audio is already unlocked (e.g., from index Play click), start immediately
     if (unlocked.value && soundOn.value) {
