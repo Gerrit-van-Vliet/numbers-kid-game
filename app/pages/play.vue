@@ -7,7 +7,7 @@
                 <div class="flex flex-wrap items-center justify-center w-full max-w-sm gap-4">
                     <div tabindex="0" v-for="tile in tiles" :key="tile.id"
                          class="basis-[calc((100%-theme(space.4)*2)/3)] aspect-square border-4 border-orange rounded-lg flex items-center justify-center cursor-pointer select-none"
-                         :class="[tile.bgClass, tile.textClass]" @pointerdown="onTileDown(tile)" :aria-label="tile.ariaLabel">
+                         :class="[tile.bgClass, tile.textClass]" :style="tile.bgStyle" @pointerdown="onTileDown(tile)" :aria-label="tile.ariaLabel">
                         <span v-if="gameMode === 'numbers'" class="text-4xl font-bold text-orange">{{ tile.number }}</span>
                         <span class="sr-only">{{ tile.ariaLabel }}</span>
                     </div>
@@ -133,7 +133,8 @@ const tiles = computed(() => {
         colorName: c,
         ariaLabel: `${colorNames[c].en} / ${colorNames[c].nl}`,
         label: `${colorNames[c].en} / ${colorNames[c].nl}`,
-        bgClass: `bg-game-${c}`,
+        bgClass: '',
+        bgStyle: { backgroundColor: `var(--color-game-${c})` },
         textClass: getTileTextClass(c),
     }))
 })
