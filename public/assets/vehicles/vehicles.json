@@ -1,0 +1,14 @@
+{
+	"vehicles": [
+		{ "key": "car", "src": "/assets/vehicles/car.svg", "en": "car", "nl": "auto" },
+		{ "key": "bus", "src": "/assets/vehicles/bus.svg", "en": "bus", "nl": "bus" },
+		{ "key": "truck", "src": "/assets/vehicles/truck.svg", "en": "truck", "nl": "vrachtwagen" },
+		{ "key": "bicycle", "src": "/assets/vehicles/bicycle.svg", "en": "bicycle", "nl": "fiets" },
+		{ "key": "motorcycle", "src": "/assets/vehicles/motorcycle.svg", "en": "motorcycle", "nl": "motor" },
+		{ "key": "airplane", "src": "/assets/vehicles/airplane.svg", "en": "airplane", "nl": "vliegtuig" },
+		{ "key": "helicopter", "src": "/assets/vehicles/helicopter.svg", "en": "helicopter", "nl": "helikopter" },
+		{ "key": "boat", "src": "/assets/vehicles/boat.svg", "en": "boat", "nl": "boot" },
+		{ "key": "train", "src": "/assets/vehicles/train.svg", "en": "train", "nl": "trein" },
+		{ "key": "tractor", "src": "/assets/vehicles/tractor.svg", "en": "tractor", "nl": "tractor" }
+	]
+}

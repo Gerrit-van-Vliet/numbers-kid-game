@@ -7,6 +7,7 @@
                     <option value="numbers">Numbers</option>
                     <option value="colors">Colors</option>
                     <option value="animals">Animals</option>
+                    <option value="vehicles">Vehicles</option>
                 </select>
             </div>
             <NuxtLink to="/play" class="relative group" @click="onClickPlay">
