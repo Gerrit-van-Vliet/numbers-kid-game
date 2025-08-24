@@ -58,8 +58,8 @@
 definePageMeta({ middleware: ['require-index-origin'] })
 const { enabled: hapticsEnabled, impactLight, impactMedium } = useHaptics()
 const { speak, enabled: ttsEnabled, setLanguage, selectVoiceByUri, language } = useTextToSpeech()
-const { soundOn, userName, challengesEnabled } = useSettings()
-const { play: playSound, stop: stopSound, pause: pauseSound, resume: resumeSound, unlock, unlocked } = useSound()
+const { soundOn, userName, challengesEnabled, bgVolume } = useSettings()
+const { play: playSound, stop: stopSound, pause: pauseSound, resume: resumeSound, unlock, unlocked, setVolume } = useSound()
 const showSettings = ref(false)
 const lastNumber = ref(null)
 const lastPressAt = ref(null)
@@ -124,7 +124,7 @@ watch(showSettings, (isOpen) => { if (!isOpen) { forceReset() } })
 const backgroundSoundId = ref(null)
 function startBackgroundSound() {
     if (backgroundSoundId.value != null) return
-    backgroundSoundId.value = playSound('/assets/sounds/backround.mp3', { loop: true, volume: 0.5 })
+    backgroundSoundId.value = playSound('/assets/sounds/backround.mp3', { loop: true, volume: bgVolume.value })
 }
 watch(soundOn, (enabled) => {
     if (enabled) {
@@ -133,6 +133,9 @@ watch(soundOn, (enabled) => {
     } else {
         if (backgroundSoundId.value != null) { pauseSound(backgroundSoundId.value) }
     }
+})
+watch(bgVolume, (v) => {
+    if (backgroundSoundId.value != null) { setVolume(backgroundSoundId.value, v) }
 })
 
 function onNumberDown(item) {

@@ -17,6 +17,13 @@
                                 <input type="checkbox" v-model="soundOn" class="accent-orange" />
                             </div>
                             <div class="flex items-center justify-between">
+                                <label class="text-black font-semibold">Background volume</label>
+                                <div class="w-[60%] flex items-center gap-2">
+                                    <input type="range" min="0" max="1" step="0.01" v-model="bgVolume" class="w-full accent-orange" />
+                                    <span class="text-black text-sm">{{ Math.round(bgVolume * 100) }}%</span>
+                                </div>
+                            </div>
+                            <div class="flex items-center justify-between">
                                 <label class="text-black font-semibold">Haptics</label>
                                 <input type="checkbox" v-model="hapticsOn" class="accent-orange" />
                             </div>
@@ -70,7 +77,7 @@ const props = defineProps({
 const emit = defineEmits(['update:modelValue', 'apply'])
 
 // Central settings
-const { soundOn, userName, difficulty, challengesEnabled, debugEnabled } = useSettings()
+const { soundOn, userName, difficulty, challengesEnabled, debugEnabled, bgVolume } = useSettings()
 // Haptics
 const { enabled: hapticsEnabled } = useHaptics()
 const hapticsOn = computed({
