@@ -1,0 +1,16 @@
+{
+	"animals": [
+		{ "key": "cat", "src": "/assets/animals/cat.svg", "en": "cat", "nl": "kat" },
+		{ "key": "dog", "src": "/assets/animals/dog.svg", "en": "dog", "nl": "hond" },
+		{ "key": "cow", "src": "/assets/animals/cow.svg", "en": "cow", "nl": "koe" },
+		{ "key": "horse", "src": "/assets/animals/horse.svg", "en": "horse", "nl": "paard" },
+		{ "key": "sheep", "src": "/assets/animals/sheep.svg", "en": "sheep", "nl": "schaap" },
+		{ "key": "pig", "src": "/assets/animals/pig.svg", "en": "pig", "nl": "varken" },
+		{ "key": "lion", "src": "/assets/animals/lion.svg", "en": "lion", "nl": "leeuw" },
+		{ "key": "tiger", "src": "/assets/animals/tiger.svg", "en": "tiger", "nl": "tijger" },
+		{ "key": "elephant", "src": "/assets/animals/elephant.svg", "en": "elephant", "nl": "olifant" },
+		{ "key": "monkey", "src": "/assets/animals/monkey.svg", "en": "monkey", "nl": "aap" },
+		{ "key": "bird", "src": "/assets/animals/bird.svg", "en": "bird", "nl": "vogel" },
+		{ "key": "fish", "src": "/assets/animals/fish.svg", "en": "fish", "nl": "vis" }
+	]
+}

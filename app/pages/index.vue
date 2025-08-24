@@ -6,6 +6,7 @@
                 <select id="game-mode" v-model="gameMode" class="input-orange !py-1 !px-2">
                     <option value="numbers">Numbers</option>
                     <option value="colors">Colors</option>
+                    <option value="animals">Animals</option>
                 </select>
             </div>
             <NuxtLink to="/play" class="relative group" @click="onClickPlay">
