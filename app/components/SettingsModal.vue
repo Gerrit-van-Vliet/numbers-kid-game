@@ -21,6 +21,10 @@
                                 <input type="checkbox" v-model="hapticsOn" class="accent-orange" />
                             </div>
                             <div class="flex items-center justify-between">
+                                <label class="text-black font-semibold">Challenges enabled</label>
+                                <input type="checkbox" v-model="challengesEnabled" class="accent-orange" />
+                            </div>
+                            <div class="flex items-center justify-between">
                                 <label class="text-black font-semibold">Language</label>
                                 <select v-model="ttsLanguage" class="input-orange !py-1 !px-2">
                                     <option value="en">English</option>
@@ -62,7 +66,7 @@ const props = defineProps({
 const emit = defineEmits(['update:modelValue', 'apply'])
 
 // Central settings
-const { soundOn, userName, difficulty } = useSettings()
+const { soundOn, userName, difficulty, challengesEnabled } = useSettings()
 // Haptics
 const { enabled: hapticsEnabled } = useHaptics()
 const hapticsOn = computed({
@@ -101,7 +105,8 @@ function apply() {
         language: ttsLanguage.value,
         ttsOn: ttsEnabled.value,
         ttsVoiceUri: voiceUri.value,
-        userName: userName.value
+        userName: userName.value,
+        challengesOn: challengesEnabled.value,
     })
     close()
 }

@@ -56,9 +56,9 @@
 
 <script setup>
 definePageMeta({ middleware: ['require-index-origin'] })
-const { enabled: hapticsEnabled, impactLight } = useHaptics()
+const { enabled: hapticsEnabled, impactLight, impactMedium } = useHaptics()
 const { speak, enabled: ttsEnabled, setLanguage, selectVoiceByUri, language } = useTextToSpeech()
-const { soundOn, userName } = useSettings()
+const { soundOn, userName, challengesEnabled } = useSettings()
 const { play: playSound, stop: stopSound, pause: pauseSound, resume: resumeSound, unlock, unlocked } = useSound()
 const showSettings = ref(false)
 const lastNumber = ref(null)
@@ -136,11 +136,11 @@ watch(soundOn, (enabled) => {
 })
 
 function onNumberDown(item) {
-    if (hapticsEnabled.value) { impactLight() }
+    if (hapticsEnabled.value) { impactMedium() }
     lastNumber.value = item
     lastPressAt.value = new Date().getTime()
     if (ttsEnabled.value) {
-        if (currentChallengeNumber.value) {
+        if (challengesEnabled.value && currentChallengeNumber.value) {
             if (item.number === currentChallengeNumber.value) {
                 speak(String(item.number) + '. ' + messages.great_job[language.value] + ' ' + userName.value + '!', { interrupt: true })
                 currentChallengeNumber.value = null
@@ -156,7 +156,7 @@ function onNumberDown(item) {
 function checkIfChallengeIsCompleted() {
     const now = Date.now()
     const lastInteractionAt = lastPressAt.value || mountedAt.value
-    if (!currentChallengeNumber.value && (now - lastInteractionAt) >= inactivityThresholdMs) {
+    if (challengesEnabled.value && !currentChallengeNumber.value && (now - lastInteractionAt) >= inactivityThresholdMs) {
         createChallenge()
     }
 }
@@ -170,6 +170,10 @@ function onApplySettings(settings) {
     if (settings?.language) { setLanguage(settings.language) }
     if (typeof settings?.ttsOn === 'boolean') { ttsEnabled.value = settings.ttsOn }
     if (settings?.ttsVoiceUri) { selectVoiceByUri(settings.ttsVoiceUri) }
+    if (typeof settings?.challengesOn === 'boolean') {
+        // When toggled off, clear any current challenge
+        if (!settings.challengesOn) { currentChallengeNumber.value = null }
+    }
 }
 
 const { start: startInactivityTimer, stop: stopInactivityTimer } = useInterval(checkIfChallengeIsCompleted, 1000)
