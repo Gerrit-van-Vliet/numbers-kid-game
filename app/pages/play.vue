@@ -10,6 +10,7 @@
                          :class="[tile.bgClass, tile.textClass]" :style="tile.bgStyle" @pointerdown="onTileDown(tile)" :aria-label="tile.ariaLabel">
                         <span v-if="gameMode === 'numbers'" class="text-4xl font-bold text-orange">{{ tile.number }}</span>
                         <img v-else-if="gameMode === 'animals'" :src="tile.src" alt="" class="w-[70%] h-[70%] object-contain" />
+                        <img v-else-if="gameMode === 'vehicles'" :src="tile.src" alt="" class="w-[70%] h-[70%] object-contain" />
                         <span class="sr-only">{{ tile.ariaLabel }}</span>
                     </div>
                 </div>
@@ -133,6 +134,20 @@ const animalNames = {
     fish:     { en: 'fish', nl: 'vis' },
 }
 
+// Vehicles with English and Dutch labels
+const vehicleNames = {
+    car:        { en: 'car', nl: 'auto' },
+    bus:        { en: 'bus', nl: 'bus' },
+    truck:      { en: 'truck', nl: 'vrachtwagen' },
+    bicycle:    { en: 'bicycle', nl: 'fiets' },
+    motorcycle: { en: 'motorcycle', nl: 'motor' },
+    airplane:   { en: 'airplane', nl: 'vliegtuig' },
+    helicopter: { en: 'helicopter', nl: 'helikopter' },
+    boat:       { en: 'boat', nl: 'boot' },
+    train:      { en: 'train', nl: 'trein' },
+    tractor:    { en: 'tractor', nl: 'tractor' },
+}
+
 const defaultAnimals = [
     { key: 'cat', src: '/assets/animals/cat.svg' },
     { key: 'dog', src: '/assets/animals/dog.svg' },
@@ -148,10 +163,28 @@ const defaultAnimals = [
     { key: 'fish', src: '/assets/animals/fish.svg' },
 ]
 
+const defaultVehicles = [
+    { key: 'car', src: '/assets/vehicles/car.svg' },
+    { key: 'bus', src: '/assets/vehicles/bus.svg' },
+    { key: 'truck', src: '/assets/vehicles/truck.svg' },
+    { key: 'bicycle', src: '/assets/vehicles/bicycle.svg' },
+    { key: 'motorcycle', src: '/assets/vehicles/motorcycle.svg' },
+    { key: 'airplane', src: '/assets/vehicles/airplane.svg' },
+    { key: 'helicopter', src: '/assets/vehicles/helicopter.svg' },
+    { key: 'boat', src: '/assets/vehicles/boat.svg' },
+    { key: 'train', src: '/assets/vehicles/train.svg' },
+    { key: 'tractor', src: '/assets/vehicles/tractor.svg' },
+]
+
 const animals = ref(defaultAnimals)
+const vehicles = ref(defaultVehicles)
 
 function defaultSrcForKey(key) {
     return `/assets/animals/${key}.svg`
+}
+
+function defaultVehicleSrcForKey(key) {
+    return `/assets/vehicles/${key}.svg`
 }
 
 async function fetchAnimals() {
@@ -170,9 +203,30 @@ async function fetchAnimals() {
     } catch (_) {}
 }
 
+async function fetchVehicles() {
+    try {
+        const res = await fetch('/assets/vehicles/vehicles.json', { cache: 'no-cache' })
+        if (!res.ok) return
+        const data = await res.json()
+        const list = Array.isArray(data) ? data : (Array.isArray(data.vehicles) ? data.vehicles : null)
+        if (!Array.isArray(list) || list.length === 0) return
+        vehicles.value = list.map(item => ({
+            key: String(item.key || '').trim() || 'unknown',
+            src: item.src || defaultVehicleSrcForKey(item.key),
+            en: item.en,
+            nl: item.nl,
+        }))
+    } catch (_) {}
+}
+
 function getAnimalLabel(key, lang) {
     const override = animals.value.find(a => a.key === key)
     return (override && override[lang]) || (animalNames[key] && animalNames[key][lang]) || key
+}
+
+function getVehicleLabel(key, lang) {
+    const override = vehicles.value.find(v => v.key === key)
+    return (override && override[lang]) || (vehicleNames[key] && vehicleNames[key][lang]) || key
 }
 
 function getTileTextClass(colorKey) {
@@ -201,6 +255,20 @@ const tiles = computed(() => {
             }
         })
     }
+    if (gameMode.value === 'vehicles') {
+        return vehicles.value.map((v) => {
+            const labelEn = getVehicleLabel(v.key, 'en')
+            const labelNl = getVehicleLabel(v.key, 'nl')
+            return {
+                id: `v-${v.key}`,
+                vehicleKey: v.key,
+                src: v.src,
+                ariaLabel: `${labelEn} / ${labelNl}`,
+                bgClass: 'bg-white',
+                textClass: 'text-black',
+            }
+        })
+    }
     return colorList.map((c) => ({
         id: `c-${c}`,
         colorName: c,
@@ -219,6 +287,11 @@ function createChallenge() {
         motivateToClickSpecificTarget(String(currentChallengeTarget.value))
     } else if (gameMode.value === 'animals') {
         const pool = animals.value.map(a => a.key)
+        const target = pool[Math.floor(Math.random() * pool.length)]
+        currentChallengeTarget.value = target
+        motivateToClickSpecificTarget(String(target))
+    } else if (gameMode.value === 'vehicles') {
+        const pool = vehicles.value.map(v => v.key)
         const target = pool[Math.floor(Math.random() * pool.length)]
         currentChallengeTarget.value = target
         motivateToClickSpecificTarget(String(target))
@@ -293,6 +366,15 @@ function onTileDown(item) {
                     const target = getAnimalLabel(String(currentChallengeTarget.value), language.value)
                     speak(`${selected}. ${messages.nope_that_was_wrong[language.value]} ${target}.`, { interrupt: true })
                 }
+            } else if (gameMode.value === 'vehicles') {
+                const selected = getVehicleLabel(item.vehicleKey, language.value)
+                if (item.vehicleKey === currentChallengeTarget.value) {
+                    speak(`${selected}. ${messages.great_job[language.value]} ${userName.value}!`, { interrupt: true })
+                    currentChallengeTarget.value = null
+                } else {
+                    const target = getVehicleLabel(String(currentChallengeTarget.value), language.value)
+                    speak(`${selected}. ${messages.nope_that_was_wrong[language.value]} ${target}.`, { interrupt: true })
+                }
             } else {
                 const selected = colorNames[item.colorName][language.value]
                 if (item.colorName === currentChallengeTarget.value) {
@@ -308,6 +390,9 @@ function onTileDown(item) {
                 speak(String(item.number), { interrupt: true })
             } else if (gameMode.value === 'animals') {
                 const name = getAnimalLabel(item.animalKey, language.value)
+                speak(name, { interrupt: true })
+            } else if (gameMode.value === 'vehicles') {
+                const name = getVehicleLabel(item.vehicleKey, language.value)
                 speak(name, { interrupt: true })
             } else {
                 const name = colorNames[item.colorName][language.value]
@@ -334,6 +419,12 @@ function motivateToClickSpecificTarget(label) {
     if (gameMode.value === 'animals') {
         const key = String(label)
         const name = getAnimalLabel(key, language.value)
+        speak(`${messages.click[language.value]} ${name}`, { interrupt: true })
+        return
+    }
+    if (gameMode.value === 'vehicles') {
+        const key = String(label)
+        const name = getVehicleLabel(key, language.value)
         speak(`${messages.click[language.value]} ${name}`, { interrupt: true })
         return
     }
@@ -379,6 +470,8 @@ function handleFirstGestureStart() {
 onMounted(() => {
     // Load optional animals config
     fetchAnimals()
+    // Load optional vehicles config
+    fetchVehicles()
     startInactivityTimer()
     // If audio is already unlocked (e.g., from index Play click), start immediately
     if (unlocked.value && soundOn.value) {

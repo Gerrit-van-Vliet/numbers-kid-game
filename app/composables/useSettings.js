@@ -44,7 +44,7 @@ function ensureInit() {
     const savedBgVol = parseFloat(safeGet('bgVolume', '0.25'))
     bgVolume.value = Number.isFinite(savedBgVol) ? Math.max(0, Math.min(1, savedBgVol)) : 0.25
     const savedMode = safeGet('gameMode', 'numbers')
-    gameMode.value = ['numbers', 'colors', 'animals'].includes(savedMode) ? savedMode : 'numbers'
+    gameMode.value = ['numbers', 'colors', 'animals', 'vehicles'].includes(savedMode) ? savedMode : 'numbers'
 
     // Persist on change
     watch(soundOn, v => safeSet('soundOn', Boolean(v)))
